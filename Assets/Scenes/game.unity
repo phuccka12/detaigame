@@ -2707,13 +2707,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   moveSpeed: 3
-  maxChargeTime: 1.5
-  maxJumpForce: 12
-  groundLayer:
-    serializedVersion: 2
-    m_Bits: 0
-  groundCheck: {fileID: 215400923}
-  groundCheckRadius: 0.2
+  maxJumpHeight: 10
+  jumpChargeTime: 1
+  gravity: 20
 --- !u!213 &1185183747
 Sprite:
   m_ObjectHideFlags: 0
