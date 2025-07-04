@@ -7,29 +7,29 @@ using UnityEngine.EventSystems;
 public class MenuManager : MonoBehaviour
 {
     [Header("UI Buttons")]
-    // Kéo các nút từ Hierarchy vào đây trong Inspector
     public Button startButton;
     public Button settingsButton;
     public Button quitButton;
+    public Button backButton;  // Nút quay lại từ Settings
 
     [Header("Scene To Load")]
-    // Tên của màn chơi chính để tải
     public string mainGameSceneName = "map3";
 
-    // Biến static để truyền tên scene cho màn hình loading
     public static string sceneToLoad;
 
-    // Biến để quản lý coroutine nhấp nháy đang hoạt động
+    // Các UI Panels
+    public GameObject mainMenuPanel;  // Menu chính
+    public GameObject settingPanel;   // Menu cài đặt
+
     private Coroutine activeBlinkCoroutine;
 
     void Start()
     {
-        // Gán sự kiện cho các nút bằng code
         startButton.onClick.AddListener(StartGame);
         settingsButton.onClick.AddListener(OpenSettings);
         quitButton.onClick.AddListener(QuitGame);
+        backButton.onClick.AddListener(CloseSettings);  // Gắn nút Back để quay lại menu chính
 
-        // Thêm hiệu ứng hover cho từng nút
         AddHoverEffect(startButton);
         AddHoverEffect(settingsButton);
         AddHoverEffect(quitButton);
@@ -39,17 +39,22 @@ public class MenuManager : MonoBehaviour
 
     public void StartGame()
     {
-        // 1. Gán tên scene cần tải vào biến static
         sceneToLoad = mainGameSceneName;
-
-        // 2. Tải scene màn hình chờ
         SceneManager.LoadScene("LoadingScreen");
     }
 
     public void OpenSettings()
     {
         Debug.Log("Mở Cài đặt!");
-        // Thêm logic mở panel cài đặt ở đây
+        mainMenuPanel.SetActive(false);  // Ẩn menu chính
+        settingPanel.SetActive(true);    // Hiển thị menu cài đặt
+    }
+
+    public void CloseSettings()
+    {
+        Debug.Log("Đóng Cài đặt!");
+        settingPanel.SetActive(false);  // Ẩn menu cài đặt
+        mainMenuPanel.SetActive(true);  // Hiển thị menu chính
     }
 
     public void QuitGame()
@@ -62,14 +67,13 @@ public class MenuManager : MonoBehaviour
 
     private void AddHoverEffect(Button button)
     {
-        // Thêm CanvasGroup nếu chưa có để làm mờ cả nút
         if (button.GetComponent<CanvasGroup>() == null)
         {
             button.gameObject.AddComponent<CanvasGroup>();
         }
 
         EventTrigger trigger = button.gameObject.GetComponent<EventTrigger>() ?? button.gameObject.AddComponent<EventTrigger>();
-        trigger.triggers.Clear(); // Xóa các trigger cũ để tránh trùng lặp
+        trigger.triggers.Clear();
 
         // Sự kiện khi chuột đi vào
         EventTrigger.Entry pointerEnter = new EventTrigger.Entry { eventID = EventTriggerType.PointerEnter };
@@ -84,7 +88,6 @@ public class MenuManager : MonoBehaviour
 
     private void OnPointerEnter(CanvasGroup canvasGroup)
     {
-        // Dừng coroutine cũ nếu có trước khi bắt đầu cái mới
         if (activeBlinkCoroutine != null) StopCoroutine(activeBlinkCoroutine);
         activeBlinkCoroutine = StartCoroutine(BlinkEffect(canvasGroup));
     }
@@ -106,7 +109,6 @@ public class MenuManager : MonoBehaviour
 
         while (true)
         {
-            // Dùng hàm Sin để tạo hiệu ứng nhấp nháy lên xuống mượt mà
             canvasGroup.alpha = Mathf.Lerp(minAlpha, 1f, (Mathf.Sin(Time.time * blinkSpeed) + 1f) / 2f);
             yield return null;
         }

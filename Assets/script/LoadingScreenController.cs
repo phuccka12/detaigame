@@ -46,8 +46,7 @@ public class LoadingScreenController : MonoBehaviour
             yield return null; // Chờ đến frame tiếp theo
         }
 
-        // Sau khi hết thời gian tải tối thiểu, hãy đảm bảo việc tải thật đã xong
-        // Vòng lặp này sẽ kết thúc ngay lập tức nếu game đã tải xong từ trước
+ 
         while (operation.progress < 0.9f)
         {
             yield return null;
