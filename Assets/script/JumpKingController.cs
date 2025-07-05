@@ -1,6 +1,5 @@
 using UnityEngine;
-
-public class JumpKingController : MonoBehaviour
+public class JumpKingController : PersistentSingleton<JumpKingController>
 {
     public float moveSpeed = 5f;               // Tốc độ di chuyển của nhân vật
     public float maxJumpHeight = 10f;          // Độ cao nhảy tối đa
@@ -224,5 +223,10 @@ public class JumpKingController : MonoBehaviour
             isBlocking = false;  // Tắt trạng thái thủ
             animator.SetBool("isBlocking", false);  // Tắt animation thủ
         }
+    }
+    // Thêm hàm này vào bất cứ đâu bên trong class JumpKingController
+    public void SetNewSpawnPosition(Vector3 newPosition)
+    {
+        spawnPosition = newPosition;
     }
 }

@@ -3008,7 +3008,7 @@ MonoBehaviour:
   settingsButton: {fileID: 1586291989}
   quitButton: {fileID: 1231132021}
   backButton: {fileID: 150871379}
-  mainGameSceneName: map3
+  mainGameSceneName: map1
   mainMenuPanel: {fileID: 194437479}
   settingPanel: {fileID: 1507447700}
 --- !u!4 &1659673845

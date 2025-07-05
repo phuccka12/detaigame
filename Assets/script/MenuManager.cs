@@ -10,10 +10,10 @@ public class MenuManager : MonoBehaviour
     public Button startButton;
     public Button settingsButton;
     public Button quitButton;
-    public Button backButton;  // Nút quay lại từ Settings
+    public Button backButton;  // Nút quay lại từ Settings1
 
     [Header("Scene To Load")]
-    public string mainGameSceneName = "map3";
+    public string mainGameSceneName = "map1";
 
     public static string sceneToLoad;
 

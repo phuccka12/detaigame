@@ -14,6 +14,7 @@ GameObject:
   - component: {fileID: 5498804064443543461}
   - component: {fileID: 700042788438987809}
   - component: {fileID: 3849758968798399213}
+  - component: {fileID: 1688481843685274378}
   m_Layer: 0
   m_Name: IDLE 1_0
   m_TagString: Untagged
@@ -125,6 +126,7 @@ MonoBehaviour:
   maxJumpHeight: 20
   jumpChargeTime: 1
   gravity: 20
+  isBlocking: 0
 --- !u!61 &700042788438987809
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -197,3 +199,15 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 0
   m_Constraints: 4
+--- !u!114 &1688481843685274378
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8036888399867449310}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 09450f27eb4cd424bbbff676f861cca4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
