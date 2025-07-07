@@ -73,6 +73,15 @@ public class BlackHolePortal : MonoBehaviour
         {
             MovePlayerToSpawnPoint();
         }
+        Debug.LogWarning("--- BẮT ĐẦU KIỂM TRA SCENE " + scene.name + " ---");
+        GameObject[] allPlayers = GameObject.FindGameObjectsWithTag("Player");
+        Debug.LogWarning("Tìm thấy tổng cộng: " + allPlayers.Length + " nhân vật.");
+
+        foreach (GameObject p in allPlayers)
+        {
+            Debug.Log("Phát hiện nhân vật tên: " + p.name);
+        }
+        Debug.LogWarning("--- KẾT THÚC KIỂM TRA ---");
     }
 
     void MovePlayerToSpawnPoint()
@@ -82,12 +91,18 @@ public class BlackHolePortal : MonoBehaviour
         {
             if (JumpKingController.instance != null)
             {
+                // --- CÁC DÒNG DEBUG THÊM VÀO ---
+                Debug.Log("Tìm thấy SpawnPoint tại vị trí: " + spawnPoint.transform.position);
+                Debug.Log("Vị trí của Player TRƯỚC khi dịch chuyển: " + JumpKingController.instance.transform.position);
+                // ------------------------------------
+
                 JumpKingController player = JumpKingController.instance;
                 player.transform.position = spawnPoint.transform.position;
-
-                // === DÒNG LỆNH QUAN TRỌNG NHẤT ĐƯỢC THÊM VÀO ===
-                // Cập nhật lại vị trí hồi sinh cho nhân vật để khi chết sẽ hồi sinh ở map hiện tại
                 player.SetNewSpawnPosition(spawnPoint.transform.position);
+
+                // --- DÒNG DEBUG THÊM VÀO ---
+                Debug.Log("Vị trí của Player SAU khi dịch chuyển: " + player.transform.position);
+                // -----------------------------
 
                 Debug.Log("Nhân vật đã được dịch chuyển và cập nhật spawn point!");
             }

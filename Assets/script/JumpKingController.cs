@@ -229,4 +229,6 @@ public class JumpKingController : PersistentSingleton<JumpKingController>
     {
         spawnPosition = newPosition;
     }
+    // Thêm hàm này vào bất cứ đâu bên trong class JumpKingController
+  
 }

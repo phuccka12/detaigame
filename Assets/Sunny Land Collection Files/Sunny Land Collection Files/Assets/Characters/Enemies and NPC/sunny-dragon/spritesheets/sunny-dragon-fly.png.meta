@@ -43,7 +43,7 @@ TextureImporter:
   nPOTScale: 0
   lightmap: 0
   compressionQuality: 50
-  spriteMode: 1
+  spriteMode: 2
   spriteExtrude: 1
   spriteMeshType: 1
   alignment: 0
@@ -95,7 +95,196 @@ TextureImporter:
     forceMaximumCompressionQuality_BC6H_BC7: 0
   spriteSheet:
     serializedVersion: 2
-    sprites: []
+    sprites:
+    - serializedVersion: 2
+      name: sunny-dragon-fly_0
+      rect:
+        serializedVersion: 2
+        x: 14
+        y: 25
+        width: 162
+        height: 106
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 346b7e757c075934b81303e914070efe
+      internalID: -1763202578
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: sunny-dragon-fly_1
+      rect:
+        serializedVersion: 2
+        x: 204
+        y: 8
+        width: 141
+        height: 116
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: de5b3a9cd2cc6d047acbf893b92aecfb
+      internalID: 652387404
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: sunny-dragon-fly_2
+      rect:
+        serializedVersion: 2
+        x: 396
+        y: 7
+        width: 136
+        height: 112
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 154431a8f7f7fd3458b6c5d30b48e39a
+      internalID: -36275517
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: sunny-dragon-fly_3
+      rect:
+        serializedVersion: 2
+        x: 590
+        y: 5
+        width: 157
+        height: 98
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 7263382211da3fb4eb24f0c44ac22764
+      internalID: -1906044280
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: sunny-dragon-fly_4
+      rect:
+        serializedVersion: 2
+        x: 774
+        y: 6
+        width: 177
+        height: 99
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 87151e441539ee24ba725c588a111f8f
+      internalID: 108682926
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: sunny-dragon-fly_5
+      rect:
+        serializedVersion: 2
+        x: 974
+        y: 15
+        width: 172
+        height: 99
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 6dab44b854b41d447a156532a8f71225
+      internalID: 1284918290
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: sunny-dragon-fly_6
+      rect:
+        serializedVersion: 2
+        x: 1164
+        y: 33
+        width: 153
+        height: 71
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 9a1c1c371189e1c43a3f8d308047fafd
+      internalID: -1179931613
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: sunny-dragon-fly_7
+      rect:
+        serializedVersion: 2
+        x: 1356
+        y: 27
+        width: 159
+        height: 99
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 71a7dfd2107b33c4b874f06ef4538a35
+      internalID: 1671330010
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: sunny-dragon-fly_8
+      rect:
+        serializedVersion: 2
+        x: 1548
+        y: 23
+        width: 163
+        height: 143
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 4689215b8a15c18408876d09a9032ae3
+      internalID: -15129850
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
     outline: []
     physicsShape: []
     bones: []
@@ -106,7 +295,16 @@ TextureImporter:
     edges: []
     weights: []
     secondaryTextures: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      sunny-dragon-fly_0: -1763202578
+      sunny-dragon-fly_1: 652387404
+      sunny-dragon-fly_2: -36275517
+      sunny-dragon-fly_3: -1906044280
+      sunny-dragon-fly_4: 108682926
+      sunny-dragon-fly_5: 1284918290
+      sunny-dragon-fly_6: -1179931613
+      sunny-dragon-fly_7: 1671330010
+      sunny-dragon-fly_8: -15129850
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
