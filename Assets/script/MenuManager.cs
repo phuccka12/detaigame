@@ -92,15 +92,19 @@ public class MenuManager : MonoBehaviour
         activeBlinkCoroutine = StartCoroutine(BlinkEffect(canvasGroup));
     }
 
-    private void OnPointerExit(CanvasGroup canvasGroup)
+   private void OnPointerExit(CanvasGroup canvasGroup)
+{
+    // Tránh lỗi khi object đã bị destroy hoặc canvasGroup null
+    if (this == null || canvasGroup == null) return;
+
+    if (activeBlinkCoroutine != null)
     {
-        if (activeBlinkCoroutine != null)
-        {
-            StopCoroutine(activeBlinkCoroutine);
-            activeBlinkCoroutine = null;
-        }
-        canvasGroup.alpha = 1f; // Reset độ trong suốt về 100%
+        StopCoroutine(activeBlinkCoroutine);
+        activeBlinkCoroutine = null;
     }
+
+    canvasGroup.alpha = 1f; // Reset độ trong suốt về 100%
+}
 
     private IEnumerator BlinkEffect(CanvasGroup canvasGroup)
     {
