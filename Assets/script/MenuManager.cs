@@ -2,59 +2,76 @@
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 using System.Collections;
-using UnityEngine.EventSystems;
+using UnityEngine.EventSystems; // THÊM LẠI: Thư viện cần thiết cho hiệu ứng
 
 public class MenuManager : MonoBehaviour
 {
     [Header("UI Buttons")]
     public Button startButton;
+    public Button continueButton;
     public Button settingsButton;
     public Button quitButton;
-    public Button backButton;  // Nút quay lại từ Settings1
+    public Button backButton;
 
     [Header("Scene To Load")]
     public string mainGameSceneName = "map1";
+    public string loadingSceneName = "LoadingScreen";
 
-    public static string sceneToLoad;
+    [Header("UI Panels")]
+    public GameObject mainMenuPanel;
+    public GameObject settingPanel;
 
-    // Các UI Panels
-    public GameObject mainMenuPanel;  // Menu chính
-    public GameObject settingPanel;   // Menu cài đặt
-
+    // THÊM LẠI: Biến để quản lý hiệu ứng nhấp nháy
     private Coroutine activeBlinkCoroutine;
 
     void Start()
     {
+        // Gán sự kiện cho các nút
         startButton.onClick.AddListener(StartGame);
+        continueButton.onClick.AddListener(ContinueGame);
         settingsButton.onClick.AddListener(OpenSettings);
         quitButton.onClick.AddListener(QuitGame);
-        backButton.onClick.AddListener(CloseSettings);  // Gắn nút Back để quay lại menu chính
+        backButton.onClick.AddListener(CloseSettings);
 
+        // Bật/tắt nút Continue dựa trên file save
+        bool saveExists = PlayerPrefs.HasKey("SaveExists");
+        continueButton.interactable = saveExists;
+
+        // THÊM LẠI: Kích hoạt hiệu ứng cho các nút
         AddHoverEffect(startButton);
         AddHoverEffect(settingsButton);
         AddHoverEffect(quitButton);
+        // Chỉ thêm hiệu ứng cho nút Continue nếu nó được bật
+        if (saveExists)
+        {
+            AddHoverEffect(continueButton);
+        }
     }
 
     // --- CÁC HÀM CHỨC NĂNG CHÍNH ---
 
     public void StartGame()
     {
-        sceneToLoad = mainGameSceneName;
-        SceneManager.LoadScene("LoadingScreen");
+        if (GameManager.instance != null) GameManager.instance.StartNewGame();
+        GameManager.nextSceneToLoad = mainGameSceneName;
+        SceneManager.LoadScene(loadingSceneName);
+    }
+
+    public void ContinueGame()
+    {
+        if (GameManager.instance != null) GameManager.instance.LoadGame();
     }
 
     public void OpenSettings()
     {
-        Debug.Log("Mở Cài đặt!");
-        mainMenuPanel.SetActive(false);  // Ẩn menu chính
-        settingPanel.SetActive(true);    // Hiển thị menu cài đặt
+        mainMenuPanel.SetActive(false);
+        settingPanel.SetActive(true);
     }
 
     public void CloseSettings()
     {
-        Debug.Log("Đóng Cài đặt!");
-        settingPanel.SetActive(false);  // Ẩn menu cài đặt
-        mainMenuPanel.SetActive(true);  // Hiển thị menu chính
+        settingPanel.SetActive(false);
+        mainMenuPanel.SetActive(true);
     }
 
     public void QuitGame()
@@ -63,7 +80,7 @@ public class MenuManager : MonoBehaviour
         Application.Quit();
     }
 
-    // --- LOGIC HIỆU ỨNG NHẤP NHÁY ---
+    // --- THÊM LẠI: TOÀN BỘ LOGIC HIỆU ỨNG NHẤP NHÁY CỦA BẠN ---
 
     private void AddHoverEffect(Button button)
     {
@@ -75,12 +92,10 @@ public class MenuManager : MonoBehaviour
         EventTrigger trigger = button.gameObject.GetComponent<EventTrigger>() ?? button.gameObject.AddComponent<EventTrigger>();
         trigger.triggers.Clear();
 
-        // Sự kiện khi chuột đi vào
         EventTrigger.Entry pointerEnter = new EventTrigger.Entry { eventID = EventTriggerType.PointerEnter };
         pointerEnter.callback.AddListener((data) => { OnPointerEnter(button.GetComponent<CanvasGroup>()); });
         trigger.triggers.Add(pointerEnter);
 
-        // Sự kiện khi chuột đi ra
         EventTrigger.Entry pointerExit = new EventTrigger.Entry { eventID = EventTriggerType.PointerExit };
         pointerExit.callback.AddListener((data) => { OnPointerExit(button.GetComponent<CanvasGroup>()); });
         trigger.triggers.Add(pointerExit);
@@ -92,19 +107,18 @@ public class MenuManager : MonoBehaviour
         activeBlinkCoroutine = StartCoroutine(BlinkEffect(canvasGroup));
     }
 
-   private void OnPointerExit(CanvasGroup canvasGroup)
-{
-    // Tránh lỗi khi object đã bị destroy hoặc canvasGroup null
-    if (this == null || canvasGroup == null) return;
-
-    if (activeBlinkCoroutine != null)
+    private void OnPointerExit(CanvasGroup canvasGroup)
     {
-        StopCoroutine(activeBlinkCoroutine);
-        activeBlinkCoroutine = null;
-    }
+        if (this == null || canvasGroup == null) return;
 
-    canvasGroup.alpha = 1f; // Reset độ trong suốt về 100%
-}
+        if (activeBlinkCoroutine != null)
+        {
+            StopCoroutine(activeBlinkCoroutine);
+            activeBlinkCoroutine = null;
+        }
+
+        canvasGroup.alpha = 1f;
+    }
 
     private IEnumerator BlinkEffect(CanvasGroup canvasGroup)
     {

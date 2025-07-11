@@ -1,89 +1,138 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
+using System.Collections;
 
-// Kế thừa từ PersistentSingleton để tự động trở thành đối tượng "bất tử" và duy nhất
 public class GameManager : PersistentSingleton<GameManager>
 {
-    // KHÔNG cần dòng "public static GameManager instance;" ở đây nữa, vì PersistentSingleton đã lo việc đó.
-
     public int maxLives = 3;
     public int currentLives;
-    public Image[] heartImages;
+    [HideInInspector] public Image[] heartImages;
     public Sprite fullHeart;
     public Sprite emptyHeart;
 
-    // Hàm Awake được sửa lại cho đúng với việc kế thừa
+    private bool isLoadingFromSave = false;
+    private Vector3 loadedPlayerPosition;
+    private bool hasBeenInitialized = false;
+    public static string nextSceneToLoad;
+
     protected override void Awake()
     {
-        // Gọi hàm Awake() của lớp cha (PersistentSingleton) để xử lý việc không bị phá hủy
         base.Awake();
-        // Bạn có thể thêm các mã khởi tạo khác ở đây nếu cần
-    }
-
-    // Start() chỉ được gọi một lần duy nhất trong suốt vòng đời của đối tượng "bất tử" này.
-    // Đây là nơi hoàn hảo để thiết lập số mạng ban đầu.
-    void Start()
-    {
-        currentLives = maxLives;
-        // Chúng ta không gọi UpdateHeartUI() ở đây vì UIManager ở mỗi màn sẽ lo việc đó.
-    }
-
-    // Hàm giảm số mạng và cập nhật UI
-    public void LoseLife()
-    {
-        if (currentLives > 0)
+        if (!hasBeenInitialized)
         {
-            currentLives--;
+            currentLives = maxLives;
+            hasBeenInitialized = true;
+        }
+        // Đăng ký lắng nghe sự kiện khi một scene được tải xong
+        SceneManager.sceneLoaded += OnSceneLoaded;
+    }
+
+    void OnDestroy()
+    {
+        // Luôn hủy đăng ký khi đối tượng bị phá hủy để tránh lỗi
+        SceneManager.sceneLoaded -= OnSceneLoaded;
+    }
+
+    // --- HỆ THỐNG SAVE/LOAD ---
+
+    public void SaveGame()
+    {
+        if (JumpKingController.instance == null) return;
+
+        string currentScene = SceneManager.GetActiveScene().name;
+        Vector3 playerPosition = JumpKingController.instance.transform.position;
+
+        PlayerPrefs.SetString("SavedScene", currentScene);
+        PlayerPrefs.SetInt("SavedLives", currentLives);
+        PlayerPrefs.SetFloat("PlayerPosX", playerPosition.x);
+        PlayerPrefs.SetFloat("PlayerPosY", playerPosition.y);
+        PlayerPrefs.SetFloat("PlayerPosZ", playerPosition.z);
+        PlayerPrefs.SetInt("SaveExists", 1);
+        PlayerPrefs.Save();
+        Debug.Log("Game Saved! Lives: " + currentLives);
+    }
+
+    public void LoadGame()
+    {
+        if (!PlayerPrefs.HasKey("SaveExists")) return;
+
+        isLoadingFromSave = true;
+        currentLives = PlayerPrefs.GetInt("SavedLives");
+        loadedPlayerPosition = new Vector3(PlayerPrefs.GetFloat("PlayerPosX"), PlayerPrefs.GetFloat("PlayerPosY"), PlayerPrefs.GetFloat("PlayerPosZ"));
+        nextSceneToLoad = PlayerPrefs.GetString("SavedScene");
+
+        SceneManager.LoadScene("LoadingScreen");
+    }
+
+    // --- QUẢN LÝ TRẠNG THÁI ---
+
+    // Hàm này sẽ tự động chạy MỖI KHI một scene tải xong
+    // Dán hàm này vào để thay thế hàm OnSceneLoaded cũ trong GameManager.cs
+
+    private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        // Bỏ qua nếu là Menu hoặc Loading
+        if (scene.name == "MenuStart" || scene.name == "LoadingScreen") return;
+
+        // 1. Tìm UIManager để cập nhật UI
+        UIManager uiManagerInScene = FindObjectOfType<UIManager>();
+        if (uiManagerInScene != null)
+        {
+            this.heartImages = uiManagerInScene.heartImages;
             UpdateHeartUI();
-
-            if (currentLives <= 0)
-            {
-                GameOver();
-            }
-            else
-            {
-                RespawnPlayer();
-            }
         }
-    }
 
-    // Cập nhật UI trái tim
-    public void UpdateHeartUI()
-    {
-        // Nếu heartImages chưa được gán (ví dụ: đang ở giữa lúc chuyển cảnh), không làm gì cả
-        if (heartImages == null || heartImages.Length == 0) return;
-
-        for (int i = 0; i < heartImages.Length; i++)
+        // 2. Kiểm tra xem nên đặt Player ở đâu
+        if (isLoadingFromSave)
         {
-            if (i < currentLives)
+            // Nếu đang tải từ file save, đặt Player ở vị trí đã lưu
+            StartCoroutine(ApplyLoadedData());
+        }
+        else
+        {
+            // CẬP NHẬT QUAN TRỌNG:
+            // Nếu là chuyển màn thông thường, tìm SpawnPoint và dịch chuyển Player đến đó
+            GameObject spawnPoint = GameObject.FindGameObjectWithTag("SpawnPoint");
+            if (spawnPoint != null && JumpKingController.instance != null)
             {
-                heartImages[i].sprite = fullHeart;
-                heartImages[i].enabled = true;
-            }
-            else
-            {
-                heartImages[i].sprite = emptyHeart;
-                heartImages[i].enabled = false; // Trái tim rỗng thì nên ẩn đi thay vì chỉ đổi hình
+                JumpKingController.instance.transform.position = spawnPoint.transform.position;
+                // Cập nhật cả vị trí hồi sinh để nếu chết sẽ quay lại đây
+                JumpKingController.instance.SetNewSpawnPosition(spawnPoint.transform.position);
             }
         }
     }
 
-    void GameOver()
+    // Coroutine để đảm bảo mọi thứ trong scene đã sẵn sàng
+    private IEnumerator ApplyLoadedData()
     {
-        Debug.Log("Game Over!");
-        // Reset lại mạng cho lần chơi tiếp theo và tải scene Game Over
-        currentLives = maxLives;
-        SceneManager.LoadScene("GameOverScene"); // Thay "GameOverScene" bằng tên scene Game Over của bạn
-    }
+        // Đợi đến cuối frame để đảm bảo hàm Start() của Player đã chạy xong
+        yield return new WaitForEndOfFrame();
 
-    public void RespawnPlayer()
-    {
-        // Tìm instance của Player thông qua Singleton thay vì FindWithTag
         if (JumpKingController.instance != null)
         {
-            JumpKingController playerController = JumpKingController.instance;
-            playerController.transform.position = playerController.GetSpawnPosition();
+            JumpKingController.instance.transform.position = loadedPlayerPosition;
+            JumpKingController.instance.SetNewSpawnPosition(loadedPlayerPosition);
+        }
+
+        // Reset cờ sau khi hoàn tất
+        isLoadingFromSave = false;
+    }
+
+    public void UpdateHeartUI()
+    {
+        if (heartImages == null) return;
+        for (int i = 0; i < heartImages.Length; i++)
+        {
+            if (heartImages[i] != null) heartImages[i].enabled = i < currentLives;
         }
     }
+
+    // Các hàm còn lại không đổi
+    public void StartNewGame() { currentLives = maxLives; PlayerPrefs.DeleteKey("SaveExists"); }
+    public void RestartLevel() { currentLives = maxLives; Time.timeScale = 1f; SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex); }
+    public void ReturnToMainMenu() { if (JumpKingController.instance != null) Destroy(JumpKingController.instance.gameObject); Time.timeScale = 1f; this.heartImages = null; SceneManager.LoadScene("MenuStart"); }
+    public void LoseLife() { if (currentLives > 0) { currentLives--; UpdateHeartUI(); if (currentLives <= 0) GameOver(); else RespawnPlayer(); } }
+    void GameOver() { ReturnToMainMenu(); }
+    public void RespawnPlayer() { if (JumpKingController.instance != null) { JumpKingController.instance.transform.position = JumpKingController.instance.GetSpawnPosition(); } }
 }

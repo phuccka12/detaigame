@@ -1,0 +1,33 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &4684640743355693649
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 7351061662421850578}
+  m_Layer: 0
+  m_Name: Player (Missing Prefab with guid_ 38e7b0bafaad0f044aae583cf88e7129)
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &7351061662421850578
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4684640743355693649}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0.006578169, y: 0, z: -0, w: 0.99997836}
+  m_LocalPosition: {x: -3.9677, y: -4.9463, z: 0.3132}
+  m_LocalScale: {x: 1.0245342, y: 0.88546014, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: -0.754, y: 0, z: 0}
