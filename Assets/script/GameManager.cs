@@ -118,7 +118,21 @@ public class GameManager : PersistentSingleton<GameManager>
         // Reset cờ sau khi hoàn tất
         isLoadingFromSave = false;
     }
+    // Thêm hàm này vào trong file GameManager.cs
+    public void Heal(int amount)
+    {
+        // Tăng mạng sống hiện tại
+        currentLives += amount;
 
+        // Đảm bảo mạng sống không vượt quá tối đa
+        if (currentLives > maxLives)
+        {
+            currentLives = maxLives;
+        }
+
+        // Cập nhật lại UI trái tim
+        UpdateHeartUI();
+    }
     public void UpdateHeartUI()
     {
         if (heartImages == null) return;

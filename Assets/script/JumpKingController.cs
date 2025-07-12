@@ -1,7 +1,11 @@
 using UnityEngine;
-
+using System.Collections;
 public class JumpKingController : PersistentSingleton<JumpKingController>
 {
+    [Header("Power-ups")]
+    public bool hasShield = false;
+    public float shieldDuration = 10f; // Khiên có hiệu lực trong 5 giây
+
     public float moveSpeed = 5f;
     public float maxJumpHeight = 10f;
     public float jumpChargeTime = 1f;
@@ -22,7 +26,7 @@ public class JumpKingController : PersistentSingleton<JumpKingController>
     private Animator animator;
     private SpriteRenderer spriteRenderer;
     private Vector3 spawnPosition;
-
+    public AudioClip jumpSound;
     // CẬP NHẬT: Chuyển việc lấy component vào Awake()
     protected override void Awake()
     {
@@ -106,6 +110,12 @@ public class JumpKingController : PersistentSingleton<JumpKingController>
 
     void Jump()
     {
+        if (AudioManager.instance != null && jumpSound != null)
+        {
+            // Ra lệnh cho AudioManager phát hiệu ứng âm thanh nhảy
+            AudioManager.instance.PlaySFX(jumpSound);
+        }
+
         rb.velocity = new Vector2(rb.velocity.x, currentJumpHeight);
         currentJumpHeight = 0f;
         isJumping = false;
@@ -157,10 +167,17 @@ public class JumpKingController : PersistentSingleton<JumpKingController>
 
     public void TakeDamage()
     {
+        // NẾU CÓ KHIÊN, bỏ qua sát thương
+        if (hasShield)
+        {
+            Debug.Log("Khiên đã chặn một đòn tấn công!");
+            return; // Thoát khỏi hàm, không bị mất mạng
+        }
+
+        // Nếu không có khiên, mất mạng như bình thường (logic cũ của bạn)
         if (GameManager.instance != null)
         {
             GameManager.instance.LoseLife();
-            GameManager.instance.RespawnPlayer();
         }
     }
 
@@ -210,5 +227,27 @@ public class JumpKingController : PersistentSingleton<JumpKingController>
     public void SetNewSpawnPosition(Vector3 newPosition)
     {
         spawnPosition = newPosition;
+    }
+    public void ActivateShield()
+    {
+        // Dừng coroutine cũ (nếu có) và bắt đầu một cái mới để reset thời gian
+        StopCoroutine("ShieldCoroutine");
+        StartCoroutine("ShieldCoroutine");
+    }
+
+    private IEnumerator ShieldCoroutine()
+    {
+        hasShield = true; // Bật trạng thái có khiên
+        Debug.Log("Khiên được kích hoạt! Bất tử trong " + shieldDuration + " giây.");
+
+        // Bạn có thể thêm hiệu ứng hình ảnh cho khiên ở đây
+
+        // Đợi hết thời gian hiệu lực
+        yield return new WaitForSeconds(shieldDuration);
+
+        hasShield = false; // Tắt trạng thái có khiên
+        Debug.Log("Khiên đã hết hiệu lực.");
+
+        // Tắt hiệu ứng hình ảnh của khiên ở đây
     }
 }
