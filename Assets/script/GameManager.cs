@@ -5,6 +5,8 @@ using System.Collections;
 
 public class GameManager : PersistentSingleton<GameManager>
 {
+  
+
     public int maxLives = 3;
     public int currentLives;
     [HideInInspector] public Image[] heartImages;
@@ -15,6 +17,15 @@ public class GameManager : PersistentSingleton<GameManager>
     private Vector3 loadedPlayerPosition;
     private bool hasBeenInitialized = false;
     public static string nextSceneToLoad;
+
+
+
+    [Header("Timing & Score")]
+    private float startTime;
+    private float elapsedTime;
+    private bool timerIsRunning = false;
+     
+
 
     protected override void Awake()
     {

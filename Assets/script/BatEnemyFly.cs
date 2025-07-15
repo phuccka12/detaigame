@@ -1,96 +1,107 @@
-using UnityEngine;
+﻿using UnityEngine;
 
-public class BatEnemyFlySmoothChase : MonoBehaviour
+public class BatController : MonoBehaviour
 {
-    [Header("Z Patrol Settings")]
-    public Transform[] waypoints;
-    public float patrolSpeed = 2f;
-    public float smoothTime = 0.3f;
+    [Header("Patrol Settings")]
+    public float patrolSpeed = 2f;        // Tốc độ di chuyển tuần tra
+    public float moveRange = 4f;          // Phạm vi bay qua lại
 
     [Header("Chase Settings")]
-    public float detectionRange = 4f;
-    public float chaseSpeed = 5f;
-    public float returnSpeed = 3f;
+    public float detectionRange = 5f;     // Phạm vi phát hiện người chơi
+    public float chaseSpeed = 4f;         // Tốc độ đuổi theo
+    public float returnSpeed = 3f;        // Tốc độ quay về
 
-    private Transform player;
-    private Animator animator;
-    private Vector3 velocity = Vector3.zero;
-    private int currentIndex = 0;
+    // Biến nội bộ
+    private Vector3 patrolCenter;
+    private bool movingRight = true;
     private bool chasing = false;
     private bool returning = false;
-    private Vector3 returnPoint;
+    private Transform player;
+    private Animator animator;
 
     void Start()
     {
-        player = GameObject.FindGameObjectWithTag("Player").transform;
+        // Lưu lại vị trí ban đầu làm trung tâm tuần tra
+        patrolCenter = transform.position;
         animator = GetComponent<Animator>();
 
+        // Thiết lập Rigidbody để không bị ảnh hưởng bởi trọng lực
         Rigidbody2D rb = GetComponent<Rigidbody2D>();
         if (rb != null)
         {
             rb.gravityScale = 0;
             rb.freezeRotation = true;
         }
-
-        transform.position = waypoints[0].position;
     }
 
     void Update()
     {
+        // Tìm người chơi một cách an toàn
+        if (player == null)
+        {
+            if (JumpKingController.instance != null)
+                player = JumpKingController.instance.transform;
+            else
+                return; // Nếu không có người chơi, không làm gì cả
+        }
+
+        // Logic chuyển trạng thái
         float distToPlayer = Vector2.Distance(transform.position, player.position);
 
-        if (!chasing && distToPlayer < detectionRange)
+        if (!chasing && !returning && distToPlayer < detectionRange)
         {
             chasing = true;
-            returning = false;
             animator?.SetBool("IsChasing", true);
-            returnPoint = transform.position;
         }
-        else if (chasing && distToPlayer > detectionRange)
+        else if (chasing && distToPlayer > detectionRange * 1.5f) // Thêm khoảng đệm để tránh dơi đổi ý liên tục
         {
             chasing = false;
             returning = true;
             animator?.SetBool("IsChasing", false);
         }
 
+        // Thực thi hành động dựa trên trạng thái
         if (chasing)
         {
             ChasePlayer();
         }
         else if (returning)
         {
-            ReturnToPath();
+            ReturnToPatrolCenter();
         }
         else
         {
-            SmoothPatrol();
+            Patrol();
         }
-
-        FixZ();
     }
 
-    void SmoothPatrol()
+    void Patrol()
     {
-        if (waypoints.Length == 0) return;
-
-        Transform target = waypoints[currentIndex];
-        Vector3 targetPos = new Vector3(target.position.x, target.position.y, -0.1f);
-
-        transform.position = Vector3.SmoothDamp(transform.position, targetPos, ref velocity, smoothTime, patrolSpeed);
-        FlipToFace(target.position.x);
-
-        if (Vector2.Distance(transform.position, target.position) < 0.2f)
+        // Tuần tra qua lại quanh điểm trung tâm
+        if (movingRight)
         {
-            currentIndex = (currentIndex + 1) % waypoints.Length;
+            transform.position = Vector2.MoveTowards(transform.position, patrolCenter + Vector3.right * moveRange, patrolSpeed * Time.deltaTime);
+            if (transform.position.x >= patrolCenter.x + moveRange)
+            {
+                movingRight = false;
+            }
         }
+        else
+        {
+            transform.position = Vector2.MoveTowards(transform.position, patrolCenter + Vector3.left * moveRange, patrolSpeed * Time.deltaTime);
+            if (transform.position.x <= patrolCenter.x - moveRange)
+            {
+                movingRight = true;
+            }
+        }
+        // Luôn lật mặt về phía trung tâm khi tuần tra
+        FlipToFace(patrolCenter.x);
     }
 
     void ChasePlayer()
     {
-        Vector3 target = player.position;
-        target.z = -0.1f;
-        transform.position = Vector2.MoveTowards(transform.position, target, chaseSpeed * Time.deltaTime);
-        FlipToFace(target.x);
+        transform.position = Vector2.MoveTowards(transform.position, player.position, chaseSpeed * Time.deltaTime);
+        FlipToFace(player.position.x);
 
         if (Vector2.Distance(transform.position, player.position) < 1f)
         {
@@ -98,15 +109,12 @@ public class BatEnemyFlySmoothChase : MonoBehaviour
         }
     }
 
-    void ReturnToPath()
+    void ReturnToPatrolCenter()
     {
-        Vector3 target = waypoints[currentIndex].position;
-        target.z = -0.1f;
+        transform.position = Vector2.MoveTowards(transform.position, patrolCenter, returnSpeed * Time.deltaTime);
+        FlipToFace(patrolCenter.x);
 
-        transform.position = Vector2.MoveTowards(transform.position, target, returnSpeed * Time.deltaTime);
-        FlipToFace(target.x);
-
-        if (Vector2.Distance(transform.position, target) < 0.2f)
+        if (Vector2.Distance(transform.position, patrolCenter) < 0.1f)
         {
             returning = false;
         }
@@ -115,39 +123,23 @@ public class BatEnemyFlySmoothChase : MonoBehaviour
     void AttackPlayer()
     {
         animator?.SetTrigger("Attack");
-        JumpKingController jumpKingController = player.GetComponent<JumpKingController>();
-        if (jumpKingController != null)
+        player.GetComponent<JumpKingController>()?.TakeDamage();
+    }
+
+    // Logic va chạm để gây sát thương
+    private void OnCollisionEnter2D(Collision2D collision)
+    {
+        if (collision.gameObject.CompareTag("Player"))
         {
-            jumpKingController.TakeDamage();
+            collision.gameObject.GetComponent<JumpKingController>()?.TakeDamage();
         }
     }
 
     void FlipToFace(float targetX)
     {
-        Vector3 scale = transform.localScale;
         if (targetX > transform.position.x)
-            scale.x = -Mathf.Abs(scale.x);
+            transform.localScale = new Vector3(-Mathf.Abs(transform.localScale.x), transform.localScale.y, transform.localScale.z);
         else
-            scale.x = Mathf.Abs(scale.x);
-        transform.localScale = scale;
-    }
-
-    void FixZ()
-    {
-        Vector3 pos = transform.position;
-        pos.z = -0.1f;
-        transform.position = pos;
-    }
-
-    private void OnCollisionEnter2D(Collision2D collision)
-    {
-        if (collision.gameObject.CompareTag("Player"))
-        {
-            JumpKingController playerController = collision.gameObject.GetComponent<JumpKingController>();
-            if (playerController != null && !playerController.isBlocking)
-            {
-                AttackPlayer();
-            }
-        }
+            transform.localScale = new Vector3(Mathf.Abs(transform.localScale.x), transform.localScale.y, transform.localScale.z);
     }
 }
