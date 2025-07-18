@@ -158,6 +158,22 @@ public class GameManager : PersistentSingleton<GameManager>
     public void RestartLevel() { currentLives = maxLives; Time.timeScale = 1f; SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex); }
     public void ReturnToMainMenu() { if (JumpKingController.instance != null) Destroy(JumpKingController.instance.gameObject); Time.timeScale = 1f; this.heartImages = null; SceneManager.LoadScene("MenuStart"); }
     public void LoseLife() { if (currentLives > 0) { currentLives--; UpdateHeartUI(); if (currentLives <= 0) GameOver(); else RespawnPlayer(); } }
-    void GameOver() { ReturnToMainMenu(); }
+    // Thay thế hàm GameOver() cũ bằng hàm này
+    void GameOver()
+    {
+        Debug.Log("Game Over!");
+
+        // Dừng bộ đếm giờ (nếu có)
+        timerIsRunning = false;
+
+        // THÊM VÀO: Phá hủy nhân vật "bất tử" trước khi chuyển cảnh
+        if (JumpKingController.instance != null)
+        {
+            Destroy(JumpKingController.instance.gameObject);
+        }
+
+        // Tải scene Game Over
+        SceneManager.LoadScene("GameOverScence");
+    }
     public void RespawnPlayer() { if (JumpKingController.instance != null) { JumpKingController.instance.transform.position = JumpKingController.instance.GetSpawnPosition(); } }
 }
